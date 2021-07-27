@@ -22,8 +22,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-https://pypi.org/project/cipher-solver/
 """
 
 import os
@@ -41,12 +39,7 @@ def DecryptCaesar(CypherText:str, key:int):
 
 		out += chr(ClearOrd)
 
-	return out
-
-def DecryptSubstitution(CypherText:str, key:dict):
-	out = ""
-
-	return out
+	return out	
 
 # import the common words list from file
 CommonWords = [i.rstrip() for i in open("1-100k.txt", "r")]
@@ -56,7 +49,10 @@ CypherText = input("enter cyphertext: ")
 
 # try every avalable key for a likely decrypt
 results = []
+print()
 for key in range(1, 26):
+	print(f"\r{key}/25", end="")
+
 	ClearText = DecryptCaesar(CypherText, key)
 
 	# count the number of words that appear in the common words list
@@ -66,9 +62,10 @@ for key in range(1, 26):
 			if word == CommonWord: FoundWords += 1
 
 	results.append({"ClearText": ClearText, "key": key, "FoundWords": FoundWords})
+print()
 
 # sort results by number of found results
-results = sorted(results, key=lambda k: k['FoundWords'], reverse=True)
+results = sorted(results, key=lambda k: k['FoundWords'])
 
 # get command line width for output styling
 CMDWidth = os.get_terminal_size().columns
@@ -77,25 +74,26 @@ CMDWidth = os.get_terminal_size().columns
 if [result['FoundWords'] for result in results][0] > 5:
 	for result in results:
 		if result['FoundWords'] > 5:
-			OutMessage = f"{result['ClearText']}"
+			OutMessage = f"{result['FoundWords']} | {result['ClearText']}"
 			OutKey = f"== key {result['key']} "
 
 			if len(OutMessage) <= CMDWidth:
 				print(f"\n{OutKey}{'='*(len(OutMessage)-len(OutKey))}\n{OutMessage}\n{'='*len(OutMessage)}")
 
 			else:
-				print(f"\n{'='*CMDWidth}\n{OutMessage}\n{'='*CMDWidth}")
+				print(f"{OutKey}{'='*(CMDWidth-len(OutKey))}\n{OutMessage}\n{'='*CMDWidth}")
 
 # if no clear decrypts are found (or a very short message was entered) 
 else:
 	if len(CypherText.split(" ")) < 5: print("No likely decrypts found, showing low quality results.")
 
 	for result in sorted(results, key=lambda k: k['key']):
-		OutMessage = f"{result['ClearText']}"
+		OutMessage = f"{result['FoundWords']} | {result['ClearText']}"
 		OutKey = f"== key {result['key']} "
 
 		if len(OutMessage) <= CMDWidth:
 			print(f"\n{OutKey}{'='*(len(OutMessage)-len(OutKey))}\n{OutMessage}\n{'='*len(OutMessage)}")
 
 		else:
-			print(f"\n{'='*CMDWidth}\n{OutMessage}\n{'='*CMDWidth}")
+			print(f"\n{OutKey}{'='*(CMDWidth-len(OutKey))}\n{OutMessage}\n{'='*CMDWidth}")
+
